@@ -109,18 +109,21 @@ func (pm *Manager) MarkWorking(proxy string) {
 func (pm *Manager) HasWorkingProxies() bool {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
+
 	return len(pm.working) > 0
 }
 
 func (pm *Manager) CountWorking() int {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
+
 	return len(pm.working)
 }
 
 func (pm *Manager) CountFailed() int {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
+
 	return len(pm.failed)
 }
 
