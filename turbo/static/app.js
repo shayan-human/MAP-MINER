@@ -209,14 +209,19 @@ if (savedConfig) {
 const verifyProxyBtn = document.getElementById('verify-proxy-btn');
 const proxyInput = document.getElementById('proxies');
 const proxyHint = document.getElementById('proxy-hint');
+const proxyTypeExtraction = document.getElementById('proxy-type-extraction');
 
 verifyProxyBtn.addEventListener('click', async () => {
-    const proxyVal = proxyInput.value.trim();
-    if (!proxyVal) {
+    const proxyType = proxyTypeExtraction.value;
+    const rawProxy = proxyInput.value.trim().split('\n')[0].trim(); // Take first proxy
+    if (!rawProxy) {
         proxyHint.innerText = 'Please enter a proxy first';
         proxyHint.classList.add('proxy-hint-error');
         return;
     }
+
+    // Apply protocol prefix if not already present
+    const proxyVal = rawProxy.includes('://') ? rawProxy : proxyType + rawProxy;
 
     // Reset UI
     verifyProxyBtn.classList.add('loading');
@@ -258,7 +263,16 @@ form.addEventListener('submit', async (e) => {
     const niche = document.getElementById('niche').value;
     const maxResults = document.getElementById('max_results').value;
     const concurrency = concurrencySlider.value;
-    const proxies = document.getElementById('proxies').value;
+    const proxyType = document.getElementById('proxy-type-extraction').value;
+    const rawProxies = document.getElementById('proxies').value;
+    // Apply protocol prefix to each proxy line
+    const proxies = rawProxies.split('\n').map(p => {
+        p = p.trim();
+        if (p && !p.includes('://')) {
+            return proxyType + p;
+        }
+        return p;
+    }).join('\n');
     const extractAll = document.getElementById('extract_all').checked;
     const emailLimit = extractAll ? 0 : 1;
     const strictMode = document.getElementById('strict-mode-extraction').checked;
@@ -772,8 +786,17 @@ async function handleEnricherFile(file) {
 
     // Add dedicated proxies from enricher page if present
     const enricherProxies = document.getElementById('enricher-proxies');
+    const proxyTypeEnrich = document.getElementById('proxy-type-enrich').value;
     if (enricherProxies && enricherProxies.value.trim()) {
-        formData.append('proxies', enricherProxies.value.trim());
+        // Apply protocol prefix to each proxy line
+        const formattedProxies = enricherProxies.value.trim().split('\n').map(p => {
+            p = p.trim();
+            if (p && !p.includes('://')) {
+                return proxyTypeEnrich + p;
+            }
+            return p;
+        }).join('\n');
+        formData.append('proxies', formattedProxies);
     }
 
     // Add strict mode
