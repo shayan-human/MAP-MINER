@@ -105,6 +105,32 @@ advancedToggle.addEventListener('change', () => {
     proxyContent.classList.toggle('show', advancedToggle.checked);
 });
 
+// === Strict Mode Toggle - Extraction ===
+const strictModeExtraction = document.getElementById('strict-mode-extraction');
+const strictModeExtractionLabel = document.getElementById('strict-mode-extraction-label');
+if (strictModeExtraction) {
+    strictModeExtraction.addEventListener('change', function() {
+        const slider = this.nextElementSibling;
+        slider.classList.toggle('strict-active', this.checked);
+        if (strictModeExtractionLabel) {
+            strictModeExtractionLabel.style.color = this.checked ? '#dc3545' : '#6c757d';
+        }
+    });
+}
+
+// === Strict Mode Toggle - Enrichment ===
+const strictModeEnrich = document.getElementById('strict-mode-enrich');
+const strictModeEnrichLabel = document.getElementById('strict-mode-enrich-label');
+if (strictModeEnrich) {
+    strictModeEnrich.addEventListener('change', function() {
+        const slider = this.nextElementSibling;
+        slider.classList.toggle('strict-active', this.checked);
+        if (strictModeEnrichLabel) {
+            strictModeEnrichLabel.style.color = this.checked ? '#dc3545' : '#6c757d';
+        }
+    });
+}
+
 // === Bulk Mode Toggle ===
 bulkModeToggle.addEventListener('change', () => {
     isBulkMode = bulkModeToggle.checked;

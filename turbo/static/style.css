@@ -523,6 +523,15 @@ body {
     transform: translateX(18px)
 }
 
+/* Strict Mode Toggle - Red when active */
+.switch input:checked+.slider.strict-active {
+    background: #dc3545 !important;
+}
+
+.slider.strict-active {
+    background: #dc3545 !important;
+}
+
 .proxy-content {
     overflow: hidden;
     max-height: 0;

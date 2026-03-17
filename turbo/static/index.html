@@ -150,10 +150,11 @@
                                     </div>
                                     <div class="proxy-content" id="proxy-content">
                                         <div class="proxy-input-group">
-                                            <input type="text" class="form-input" id="proxies" name="proxies"
-                                                placeholder="e.g. http://user:pass@host:port">
+                                            <textarea class="form-input" id="proxies" name="proxies"
+                                                placeholder="http://user:pass@host:port&#10;http://host:port"
+                                                style="height:auto; min-height:60px; resize:vertical; font-family:var(--font-mono); font-size:0.8rem;"></textarea>
                                             <button type="button" class="btn-verify" id="verify-proxy-btn"
-                                                title="Verification Proxy">
+                                                title="Verify Proxy">
                                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
                                                     class="icon-idle">
@@ -166,9 +167,9 @@
                                         <div class="strict-mode-toggle" style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
                                             <label class="switch" style="transform: scale(0.85);">
                                                 <input type="checkbox" id="strict-mode-extraction">
-                                                <span class="slider" style="background: #dc3545;"></span>
+                                                <span class="slider"></span>
                                             </label>
-                                            <span style="font-size: 0.8rem; color: #dc3545; font-weight: 500;">🔒 Strict Mode - Stop if proxy fails (protect your IP)</span>
+                                            <span id="strict-mode-extraction-label" style="font-size: 0.8rem; color: #6c757d; font-weight: 500;">🔒 Strict Mode - Stop if proxy fails (protect your IP)</span>
                                         </div>
                                     </div>
                                 </div>
@@ -450,9 +451,9 @@
                             <div class="strict-mode-toggle" style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
                                 <label class="switch" style="transform: scale(0.85);">
                                     <input type="checkbox" id="strict-mode-enrich">
-                                    <span class="slider" style="background: #dc3545;"></span>
+                                    <span class="slider"></span>
                                 </label>
-                                <span style="font-size: 0.8rem; color: #dc3545; font-weight: 500;">🔒 Strict Mode - Stop if proxy fails (protect your IP)</span>
+                                <span id="strict-mode-enrich-label" style="font-size: 0.8rem; color: #6c757d; font-weight: 500;">🔒 Strict Mode - Stop if proxy fails (protect your IP)</span>
                             </div>
                         </div>
 
