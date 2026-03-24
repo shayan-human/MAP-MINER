@@ -10,18 +10,18 @@
 
 ### Linux/macOS
 ```bash
-curl -sL https://raw.githubusercontent.com/shayan-human/MAP-MINER-TEMP/main/install.sh | bash
+curl -sL https://raw.githubusercontent.com/shayan-human/MAP-MINER/main/install.sh | bash
 ```
 
 ### Windows (PowerShell)
 ```powershell
-irm https://raw.githubusercontent.com/shayan-human/MAP-MINER-TEMP/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/shayan-human/MAP-MINER/main/install.ps1 | iex
 ```
 
 ### Manual Install
 ```bash
-git clone https://github.com/shayan-human/MAP-MINER-TEMP.git
-cd MAP-MINER-TEMP/turbo
+git clone https://github.com/shayan-human/MAP-MINER.git
+cd MAP-MINER/turbo
 pip install -r requirements.txt
 ```
 
