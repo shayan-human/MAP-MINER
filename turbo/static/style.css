@@ -1206,13 +1206,17 @@ body.dark .progress-bar-container {
 
 .refine-result-card {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 1px;
     background: var(--border);
     border-radius: var(--radius-sm);
     overflow: hidden;
     border: 1px solid var(--border);
     margin-top: 2rem
+}
+
+.refine-result-card.stats-card-2x2 {
+    grid-template-columns: repeat(2, 1fr);
 }
 
 .refine-stat {
