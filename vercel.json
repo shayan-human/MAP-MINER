@@ -10,16 +10,12 @@
       "destination": "/turbo/static/$1"
     },
     {
-      "source": "/(.*).html",
-      "destination": "/$1.html"
-    },
-    {
-      "source": "/",
-      "destination": "/landing.html"
-    },
-    {
       "source": "/dashboard",
       "destination": "/turbo/static/index.html"
+    },
+    {
+      "source": "/(.*).html",
+      "destination": "/$1.html"
     }
   ]
 }
