@@ -77,10 +77,8 @@
 
     .nav-logo .logo-mark {
       width: 32px; height: 32px;
-      background: var(--violet);
-      border-radius: 8px;
+      object-fit: contain;
       display: flex; align-items: center; justify-content: center;
-      font-size: 14px;
     }
 
     /* LOGO PLACEHOLDER — replace .logo-mark content with <img src="logo.png"> when ready */
@@ -992,9 +990,8 @@
 
   <!-- NAV -->
   <nav>
-    <a href="#" class="nav-logo">
-      <!-- LOGO PLACEHOLDER: replace .logo-mark with <img src="logo.svg" width="32" height="32"> -->
-      <span class="logo-mark">⛏</span>
+    <a href="/" class="nav-logo">
+      <img src="/static/logo.png" alt="Map Miner" class="logo-mark">
       Map Miner
     </a>
     <ul class="nav-links">
@@ -1002,8 +999,8 @@
       <li><a href="#how">How it works</a></li>
     </ul>
     <div class="nav-cta">
-      <a href="/api/auth/login" class="btn-ghost">Log in</a>
-      <a href="/api/auth/login" class="btn-primary">Get started free</a>
+      <a href="/login" class="btn-ghost">Log in</a>
+      <a href="/signup" class="btn-primary">Get started free</a>
     </div>
   </nav>
 
@@ -1034,7 +1031,7 @@
       </div>
 
       <div class="hero-actions">
-        <a href="/api/auth/login" class="btn-hero">Start mining free →</a>
+        <a href="/signup" class="btn-hero">Start mining free →</a>
         <a href="#features" class="btn-hero-outline">See how it works</a>
       </div>
     </div> <!-- /hero-content -->

@@ -18,6 +18,14 @@
       "destination": "/$1.html"
     },
     {
+      "source": "/login",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/signup",
+      "destination": "/api/index.py"
+    },
+    {
       "source": "/",
       "destination": "/api/index.py"
     }

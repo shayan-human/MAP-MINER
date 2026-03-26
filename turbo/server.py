@@ -730,6 +730,21 @@ async def read_dashboard_index():
         return FileResponse(index_path)
     return JSONResponse({"error": "Dashboard front-end not found. Check turbo/static/index.html"})
 
+# Serve Login/Signup
+@app.get("/login")
+async def read_login_page():
+    login_path = os.path.join(STATIC_DIR, "login.html")
+    if os.path.exists(login_path):
+        return FileResponse(login_path)
+    return RedirectResponse(url="/api/auth/login")
+
+@app.get("/signup")
+async def read_signup_page():
+    signup_path = os.path.join(STATIC_DIR, "signup.html")
+    if os.path.exists(signup_path):
+        return FileResponse(signup_path)
+    return RedirectResponse(url="/api/auth/login")
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
