@@ -1,0 +1,10 @@
+playwright
+playwright-stealth
+pandas
+httpx
+beautifulsoup4
+asyncio
+fastapi
+uvicorn
+python-multipart
+jinja2

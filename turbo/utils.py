@@ -92,3 +92,90 @@ class ProxyManager:
         except Exception as e:
             print(f"Error parsing proxy for Playwright: {e}")
             return None
+
+
+async def validate_proxy(proxy_url, timeout=15):
+    """
+    Validates a single proxy by testing HTTP connectivity and browser-level.
+    Returns: {"valid": bool, "ip": str or None, "error": str or None}
+    """
+    import httpx
+    
+    http_valid = False
+    browser_valid = False
+    detected_ip = None
+    error_msg = None
+    
+    # Test 1: HTTP connectivity via httpx
+    try:
+        async with httpx.AsyncClient(proxy=proxy_url, timeout=timeout, verify=False) as client:
+            resp = await client.get("https://api.ipify.org", timeout=timeout)
+            if resp.status_code == 200:
+                http_valid = True
+                detected_ip = resp.text.strip()
+    except Exception as e:
+        error_msg = f"HTTP test failed: {type(e).__name__}: {str(e)}"
+    
+    # Test 2: Browser-level connectivity via Playwright
+    if http_valid:
+        from playwright.async_api import async_playwright
+        try:
+            async with async_playwright() as p:
+                proxy_config = _parse_proxy_for_playwright(proxy_url)
+                if proxy_config:
+                    browser = await p.chromium.launch(headless=True, proxy=proxy_config)
+                    await browser.close()
+                    browser_valid = True
+                else:
+                    error_msg = "Failed to parse proxy for browser"
+        except Exception as e:
+            error_msg = f"Browser test failed: {type(e).__name__}: {str(e)}"
+    
+    valid = http_valid and browser_valid
+    return {"valid": valid, "ip": detected_ip, "error": error_msg if not valid else None}
+
+
+def _parse_proxy_for_playwright(proxy_url):
+    """Parse proxy URL into Playwright format."""
+    try:
+        from urllib.parse import urlparse
+        parsed = urlparse(proxy_url)
+        port = parsed.port if parsed.port else (80 if parsed.scheme == 'http' else 443)
+        pw_proxy = {"server": f"{parsed.scheme}://{parsed.hostname}:{port}"}
+        
+        if parsed.username:
+            pw_proxy["username"] = parsed.username
+        if parsed.password:
+            pw_proxy["password"] = parsed.password
+        return pw_proxy
+    except:
+        return None
+
+
+async def validate_proxies_batch(proxy_list, timeout=15):
+    """
+    Validates a batch of proxies.
+    Returns: {"working": [...], "failed": [(proxy, error), ...]}
+    """
+    import asyncio
+    
+    working = []
+    failed = []
+    
+    async def test_one(proxy_url):
+        result = await validate_proxy(proxy_url, timeout)
+        return proxy_url, result
+    
+    tasks = [test_one(p) for p in proxy_list]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    
+    for r in results:
+        if isinstance(r, Exception):
+            continue
+        proxy_url, result = r
+        if result["valid"]:
+            working.append({"proxy": proxy_url, "ip": result["ip"]})
+        else:
+            failed.append({"proxy": proxy_url, "error": result["error"]})
+    
+    return {"working": working, "failed": failed}

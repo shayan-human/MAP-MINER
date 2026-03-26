@@ -176,12 +176,9 @@
                                     </div>
                                 </div>
                                 <!-- Strict Mode - Always visible, outside Advanced toggle -->
-                                <div class="strict-mode-toggle" style="margin-top: 15px; display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(220, 53, 69, 0.1); border-radius: 8px; border: 1px solid rgba(220, 53, 69, 0.3);">
-                                    <label class="switch" style="transform: scale(0.85);">
-                                        <input type="checkbox" id="strict-mode-extraction">
-                                        <span class="slider"></span>
-                                    </label>
-                                    <span id="strict-mode-extraction-label" style="font-size: 0.8rem; color: #6c757d; font-weight: 500;">🔒 Strict Mode - Stop if proxy fails (protect your IP)</span>
+                                <div class="require-proxy-toggle" style="margin-top: 15px; display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(220, 53, 69, 0.1); border-radius: 8px; border: 1px solid rgba(220, 53, 69, 0.3);">
+                                        <input type="checkbox" id="require-proxy-extraction">
+                                    <span id="require-proxy-extraction-label" style="font-size: 0.8rem; color: #6c757d; font-weight: 500;">🔒 Require Proxy - Scraping will only work with valid proxy</span>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group-inline"><label>Max Results</label>
@@ -476,12 +473,12 @@
                                 </select>
                                 <span style="font-size: 0.7rem; color: var(--text-muted);">Select protocol</span>
                             </div>
-                            <div class="strict-mode-toggle" style="margin-top: 15px; display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(220, 53, 69, 0.1); border-radius: 8px; border: 1px solid rgba(220, 53, 69, 0.3);">
+                            <div class="require-proxy-toggle" style="margin-top: 15px; display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(220, 53, 69, 0.1); border-radius: 8px; border: 1px solid rgba(220, 53, 69, 0.3);">
                                 <label class="switch" style="transform: scale(0.85);">
-                                    <input type="checkbox" id="strict-mode-enrich">
+                                    <input type="checkbox" id="require-proxy-enrich">
                                     <span class="slider"></span>
                                 </label>
-                                <span id="strict-mode-enrich-label" style="font-size: 0.8rem; color: #6c757d; font-weight: 500;">🔒 Strict Mode - Stop if proxy fails (protect your IP)</span>
+                                <span id="require-proxy-enrich-label" style="font-size: 0.8rem; color: #6c757d; font-weight: 500;">🔒 Require Proxy - Enrichment will only work with valid proxy</span>
                             </div>
                             
                             <div class="form-actions" style="margin-top: 2rem;">
