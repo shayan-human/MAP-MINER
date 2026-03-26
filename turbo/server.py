@@ -47,9 +47,25 @@ if not IS_VERCEL:
         except Exception:
             return False
 
-    check_and_update()
+    # check_and_update() # Disabled for now to speed up dev
+
+from starlette.middleware.sessions import SessionMiddleware
+from authlib.integrations.starlette_client import OAuth
 
 app = FastAPI(title="Map Miner Dashboard")
+
+# Session & OAuth Setup
+SECRET_KEY = os.environ.get("SESSION_SECRET", "super-secret-key-replace-me")
+app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
+
+oauth = OAuth()
+oauth.register(
+    name='google',
+    client_id=os.environ.get("GOOGLE_CLIENT_ID"),
+    client_secret=os.environ.get("GOOGLE_CLIENT_SECRET"),
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={'scope': 'openid email profile'}
+)
 
 # Setup directories
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
@@ -86,6 +102,44 @@ def save_history(history):
     with open(HISTORY_FILE, 'w') as f:
         json.dump(history, f, indent=2)
 
+from fastapi import Depends, HTTPException
+
+# --- AUTH DEPENDENCY ---
+def get_current_user(request: Request):
+    user = request.session.get('user')
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    return user
+
+# --- AUTH ROUTES ---
+@app.get("/api/auth/login")
+async def login(request: Request):
+    redirect_uri = request.url_for('auth_callback')
+    if "vercel.app" in str(request.base_url):
+        redirect_uri = str(redirect_uri).replace("http://", "https://")
+    return await oauth.google.authorize_redirect(request, redirect_uri)
+
+@app.get("/api/auth/callback")
+async def auth_callback(request: Request):
+    token = await oauth.google.authorize_access_token(request)
+    user = token.get('userinfo')
+    if user:
+        request.session['user'] = dict(user)
+    return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+
+@app.get("/api/auth/logout")
+async def logout(request: Request):
+    request.session.pop('user', None)
+    return JSONResponse({"status": "ok", "message": "Logged out"})
+
+@app.get("/api/auth/me")
+async def get_me(request: Request):
+    user = request.session.get('user')
+    if not user:
+        return JSONResponse({"authenticated": False}, status_code=401)
+    return {"authenticated": True, "user": user}
+
+# --- EXISTING API ROUTES ---
 @app.post("/api/scrape")
 async def start_scrape(
     background_tasks: BackgroundTasks,
@@ -96,7 +150,8 @@ async def start_scrape(
     concurrency: int = Form(5),
     proxies: str = Form(None),
     email_limit: int = Form(0),
-    require_proxy: bool = Form(False)
+    require_proxy: bool = Form(False),
+    user: dict = Depends(get_current_user)
 ):
     job_id = str(uuid.uuid4())
     
@@ -358,11 +413,11 @@ async def run_scrape_task(job_id, niche, location, max_results, depth, concurren
         jobs[job_id]["status"] = f"Error: {str(e)}"
 
 @app.get("/api/jobs/{job_id}")
-async def get_job_status(job_id: str):
+async def get_job_status(job_id: str, user: dict = Depends(get_current_user)):
     return jobs.get(job_id, {"error": "Job not found"})
 
 @app.get("/api/download/{filename}")
-async def download_file(filename: str):
+async def download_file(filename: str, user: dict = Depends(get_current_user)):
     filepath = os.path.join(OUTPUT_DIR, filename)
     if os.path.exists(filepath):
         return FileResponse(filepath, filename=filename, media_type='text/csv')
@@ -370,7 +425,7 @@ async def download_file(filename: str):
 
 # === History API ===
 @app.get("/api/history")
-async def get_history():
+async def get_history(user: dict = Depends(get_current_user)):
     return load_history()
 
 @app.delete("/api/history/{job_id}")
@@ -388,7 +443,7 @@ async def delete_history_item(job_id: str):
 
 # === Datasets API ===
 @app.get("/api/datasets")
-async def get_datasets():
+async def get_datasets(user: dict = Depends(get_current_user)):
     datasets = []
     for f in os.listdir(OUTPUT_DIR):
         if f.endswith('.csv'):
@@ -413,7 +468,7 @@ async def get_datasets():
     return datasets
 
 @app.delete("/api/datasets/{filename}")
-async def delete_dataset(filename: str):
+async def delete_dataset(filename: str, user: dict = Depends(get_current_user)):
     filepath = os.path.join(OUTPUT_DIR, filename)
     if os.path.exists(filepath):
         os.remove(filepath)
@@ -422,7 +477,7 @@ async def delete_dataset(filename: str):
 
 # === Proxies API (localStorage-based, but with a save endpoint) ===
 @app.get("/api/proxies")
-async def get_proxies():
+async def get_proxies(user: dict = Depends(get_current_user)):
     proxy_file = os.path.join(OUTPUT_DIR, "proxies.json")
     if os.path.exists(proxy_file):
         try:
@@ -434,7 +489,7 @@ async def get_proxies():
     return {"proxies": []}
 
 @app.post("/api/proxies")
-async def save_proxies(request: Request):
+async def save_proxies(request: Request, user: dict = Depends(get_current_user)):
     data = await request.json()
     proxy_file = os.path.join(OUTPUT_DIR, "proxies.json")
     with open(proxy_file, 'w') as f:
@@ -446,7 +501,7 @@ class ProxyTestRequest(BaseModel):
     proxy: str
 
 @app.post("/api/test-proxy")
-async def test_proxy(data: ProxyTestRequest):
+async def test_proxy(data: ProxyTestRequest, user: dict = Depends(get_current_user)):
     import httpx
     from turbo.utils import parse_proxies
     
@@ -478,7 +533,8 @@ async def enrich_csv(
     concurrency: int = Form(5),
     proxies: str = Form(None),
     email_limit: int = Form(0),
-    require_proxy: bool = Form(False)
+    require_proxy: bool = Form(False),
+    user: dict = Depends(get_current_user)
 ):
     """Upload a CSV with a 'website' column; enriches each row with scraped emails."""
     try:
@@ -610,7 +666,7 @@ async def run_enrich_csv_task(job_id, rows, concurrency, proxy_string, email_lim
 
 
 @app.post("/api/refine")
-async def refine_leads(file: UploadFile = File(...)):
+async def refine_leads(file: UploadFile = File(...), user: dict = Depends(get_current_user)):
     try:
         # 1. Load the uploaded file
         contents = await file.read()
