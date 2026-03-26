@@ -17,42 +17,55 @@ import pandas as pd
 REPO_URL = "https://github.com/shayan-human/MAP-MINER-TEMP.git"
 LOCAL_VERSION_FILE = os.path.join(os.path.dirname(__file__), ".version")
 
-def check_and_update():
-    try:
-        current_hash = subprocess.run(
-            ["git", "rev-parse", "HEAD"], 
-            capture_output=True, text=True, cwd=os.path.dirname(__file__)
-        ).stdout.strip()
-        
-        stored_hash = ""
-        if os.path.exists(LOCAL_VERSION_FILE):
-            with open(LOCAL_VERSION_FILE, "r") as f:
-                stored_hash = f.read().strip()
-        
-        if stored_hash != current_hash:
-            result = subprocess.run(
-                ["git", "pull", "origin", "main"],
-                capture_output=True, text=True, cwd=os.path.dirname(__file__)
-            )
-            if result.returncode == 0:
-                with open(LOCAL_VERSION_FILE, "w") as f:
-                    f.write(current_hash)
-                print(f"MAP-MINER: Updated to {current_hash[:8]}")
-                return True
-        return False
-    except Exception:
-        return False
+# Detect Vercel Environment
+IS_VERCEL = os.environ.get("VERCEL") == "1"
 
-check_and_update()
+if not IS_VERCEL:
+    def check_and_update():
+        try:
+            current_hash = subprocess.run(
+                ["git", "rev-parse", "HEAD"], 
+                capture_output=True, text=True, cwd=os.path.dirname(__file__)
+            ).stdout.strip()
+            
+            stored_hash = ""
+            if os.path.exists(LOCAL_VERSION_FILE):
+                with open(LOCAL_VERSION_FILE, "r") as f:
+                    stored_hash = f.read().strip()
+            
+            if stored_hash != current_hash:
+                result = subprocess.run(
+                    ["git", "pull", "origin", "main"],
+                    capture_output=True, text=True, cwd=os.path.dirname(__file__)
+                )
+                if result.returncode == 0:
+                    with open(LOCAL_VERSION_FILE, "w") as f:
+                        f.write(current_hash)
+                    print(f"MAP-MINER: Updated to {current_hash[:8]}")
+                    return True
+            return False
+        except Exception:
+            return False
+
+    check_and_update()
 
 app = FastAPI(title="Map Miner Dashboard")
 
 # Setup directories
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
-OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "outputs")
+
+if IS_VERCEL:
+    # Use /tmp for writable storage on Vercel
+    BASE_DIR = "/tmp"
+    OUTPUT_DIR = os.path.join(BASE_DIR, "outputs")
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+else:
+    # Local environment
+    OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "outputs")
+    os.makedirs(STATIC_DIR, exist_ok=True)
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+
 HISTORY_FILE = os.path.join(OUTPUT_DIR, "history.json")
-os.makedirs(STATIC_DIR, exist_ok=True)
-os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Initialize Database
 db = LeadDB(os.path.join(OUTPUT_DIR, "leads.db"))
