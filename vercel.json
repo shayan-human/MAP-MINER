@@ -2,28 +2,24 @@
   "version": 2,
   "rewrites": [
     {
-      "source": "/",
-      "destination": "/landing.html"
-    },
-    {
-      "source": "/login",
-      "destination": "/landing.html"
-    },
-    {
-      "source": "/signup",
-      "destination": "/landing.html"
-    },
-    {
-      "source": "/dashboard",
-      "destination": "/turbo/static/index.html"
-    },
-    {
       "source": "/api/(.*)",
       "destination": "/api/index.py"
     },
     {
       "source": "/static/(.*)",
       "destination": "/turbo/static/$1"
+    },
+    {
+      "source": "/(.*).html",
+      "destination": "/$1.html"
+    },
+    {
+      "source": "/",
+      "destination": "/landing.html"
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/turbo/static/index.html"
     }
   ]
 }
