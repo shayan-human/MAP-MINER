@@ -32,12 +32,17 @@ venv\Scripts\python.exe -m playwright install chromium *>$null 2>&1
 # Create mapminer.bat
 @"
 @echo off
-cd /d %~dp0
+cd /d %USERPROFILE%\mapminer
 call venv\Scripts\activate.bat
+cd turbo
 python -m uvicorn turbo.server:app --reload --port 8000
 "@ | Set-Content mapminer.bat -Encoding ASCII
 
 Write-Host ""
 Write-Host "✅ INSTALL COMPLETE!" -ForegroundColor Green
-Write-Host "Run: mapminer.bat" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Run these commands:" -ForegroundColor White
+Write-Host "  cd %USERPROFILE%\mapminer" -ForegroundColor Cyan
+Write-Host "  mapminer.bat" -ForegroundColor Cyan
+Write-Host ""
 Write-Host "Then open http://localhost:8000" -ForegroundColor White

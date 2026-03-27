@@ -21,10 +21,11 @@ pip install -r turbo/requirements.txt >/dev/null 2>&1
 pip install playwright >/dev/null 2>&1
 python -m playwright install chromium >/dev/null 2>&1
 
-# Global command
-sudo ln -sf "$(pwd)/mapminer" /usr/local/bin/mapminer 2>/dev/null || true
-
 echo ""
 echo "✅ INSTALL COMPLETE!"
-echo "Run: mapminer"
+echo ""
+echo "Run these commands:"
+echo "  cd ~/mapminer"
+echo "  ./mapminer"
+echo ""
 echo "Then open http://localhost:8000"
