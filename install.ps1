@@ -21,11 +21,13 @@ try { python --version | Out-Null } catch {
 }
 
 # Create venv & install
+Write-Host "Creating virtual environment..." -ForegroundColor Yellow
 python -m venv venv
 $venvPip = "venv\Scripts\pip.exe"
-& $venvPip install -r turbo\requirements.txt -q
-& $venvPip install playwright -q
-venv\Scripts\python.exe -m playwright install chromium -q
+Write-Host "Installing dependencies..." -ForegroundColor Yellow
+& $venvPip install -r turbo\requirements.txt *>$null 2>&1
+& $venvPip install playwright *>$null 2>&1
+venv\Scripts\python.exe -m playwright install chromium *>$null 2>&1
 
 # Create mapminer.bat
 @"
