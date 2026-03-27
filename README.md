@@ -6,29 +6,29 @@
 
 ---
 
-## Quick Install & Run
+## Quick Install & Run (2 Commands)
 
-### Linux/macOS (2 commands)
+### Linux/macOS
 
 ```bash
-# 1. Install (one time)
+# 1. Install (one time) - auto-clones repo
 curl -sL https://raw.githubusercontent.com/shayan-human/MAP-MINER/main/install.sh | bash
 
 # 2. Run (anytime - auto-updates!)
 mapminer
 ```
 
-### Windows (2 commands)
+### Windows
 
 ```powershell
-# 1. Install (one time)
+# 1. Install (one time) - auto-clones repo
 irm https://raw.githubusercontent.com/shayan-human/MAP-MINER/main/install.ps1 | iex
 
-# 2. Run (anytime)
+# 2. Run
 mapminer.bat
 ```
 
-Then open **http://localhost:8000** in your browser.
+Then open **http://localhost:8000**
 
 ---
 

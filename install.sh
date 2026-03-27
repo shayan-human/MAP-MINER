@@ -6,14 +6,28 @@ set -e
 
 echo "Installing MAP-MINER..."
 
+REPO_URL="https://github.com/shayan-human/MAP-MINER.git"
+INSTALL_DIR="$HOME/mapminer"
+
+# If not in MAP-MINER directory, clone it
+if [ ! -d "turbo/requirements.txt" ]; then
+    echo "Cloning MAP-MINER repository..."
+    if [ -d "$INSTALL_DIR" ]; then
+        rm -rf "$INSTALL_DIR"
+    fi
+    git clone "$REPO_URL" "$INSTALL_DIR"
+    cd "$INSTALL_DIR"
+    echo "Cloned to $INSTALL_DIR"
+fi
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$SCRIPT_DIR"
+
 # Check Python
 if ! command -v python3 &> /dev/null; then
     echo "ERROR: Python 3 not found. Install from https://python.org"
     exit 1
 fi
-
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-cd "$SCRIPT_DIR"
 
 # Create venv
 if [ ! -d "venv" ]; then
