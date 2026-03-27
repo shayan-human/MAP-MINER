@@ -1,41 +1,39 @@
 #!/bin/bash
-echo "Installing Map Miner Dependencies..."
+# MAP-MINER Installer for Linux/macOS
+# Run: curl -sL https://raw.githubusercontent.com/shayan-human/MAP-MINER/main/install.sh | bash
 
-# Check if Python 3 is installed
-if ! command -v python3 &> /dev/null
-then
-    echo "Python 3 is not installed. Please install Python 3.10 or higher."
-    exit
+set -e
+
+echo "Installing MAP-MINER..."
+
+# Check Python
+if ! command -v python3 &> /dev/null; then
+    echo "ERROR: Python 3 not found. Install from https://python.org"
+    exit 1
 fi
 
-# Create virtual environment if it doesn't exist
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$SCRIPT_DIR"
+
+# Create venv
 if [ ! -d "venv" ]; then
-    echo "Creating Python virtual environment..."
+    echo "Creating virtual environment..."
     python3 -m venv venv
 fi
 
-# Activate virtual environment
+# Activate and install
 source venv/bin/activate
+pip install -r turbo/requirements.txt -q
+pip install playwright -q
+python -m playwright install chromium -q
 
-# Install requirements quietly
-echo "Installing Python requirements..."
-pip install --quiet -r turbo/requirements.txt
-
-# Install Playwright browser
-echo "Installing Playwright chromium..."
-playwright install chromium
-
-# Add to PATH for system-wide access
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# Create global command
 if [ ! -L /usr/local/bin/mapminer ]; then
-    echo "Creating 'mapminer' command globally..."
-    if ln -sf "$SCRIPT_DIR/mapminer" /usr/local/bin/mapminer 2>/dev/null; then
-        echo "✅ Done! Run 'mapminer' from anywhere."
-    else
-        echo "⚠️ Need sudo permission. Running without global install."
-        echo "   Use: sudo ln -sf $SCRIPT_DIR/mapminer /usr/local/bin/mapminer"
-    fi
+    sudo ln -sf "$SCRIPT_DIR/mapminer" /usr/local/bin/mapminer 2>/dev/null || true
 fi
 
 echo ""
-echo "🚀 Run 'mapminer' to start the server!"
+echo "✅ INSTALL COMPLETE!"
+echo ""
+echo "Run: mapminer"
+echo "Then open http://localhost:8000"
