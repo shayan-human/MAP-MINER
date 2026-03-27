@@ -91,4 +91,4 @@ MIT License - © 2026 Shayan Alam
 
 ## GitHub
 
-https://github.com/shayan-human/MAP-MINER-TEMP
+https://github.com/shayan-human/MAP-MINER
