@@ -30,7 +30,12 @@ pip install -r requirements.txt
 ## Quick Start (One Command)
 
 ```bash
-cd turbo && python -m uvicorn server:app --reload --port 8000
+./run_map_miner.sh
+```
+
+Or manually:
+```bash
+cd turbo && python3 -m venv ../venv && source ../venv/bin/activate && python3 -m uvicorn server:app --reload --port 8000
 ```
 
 Then open **http://localhost:8000** in your browser.
