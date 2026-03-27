@@ -34,7 +34,6 @@ venv\Scripts\python.exe -m playwright install chromium *>$null 2>&1
 @echo off
 cd /d %USERPROFILE%\mapminer
 call venv\Scripts\activate.bat
-cd turbo
 python -m uvicorn turbo.server:app --reload --port 8000
 "@ | Set-Content mapminer.bat -Encoding ASCII
 
