@@ -39,3 +39,4 @@ turbo/map_miner.egg-info/
 
 # Go
 dist/
+turbo/.version
