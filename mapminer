@@ -7,7 +7,18 @@ case "${1:-start}" in
         [ ! -d "venv" ] && python3 -m venv venv
         source venv/bin/activate
         pip install -r turbo/requirements.txt -q
-        echo "✅ Installed! Run './mapminer' to start."
+        
+        # Auto-create global command
+        SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+        if [ ! -L /usr/local/bin/mapminer ]; then
+            if sudo ln -sf "$SCRIPT_DIR/mapminer" /usr/local/bin/mapminer 2>/dev/null; then
+                echo "✅ Installed! Run 'mapminer' from anywhere!"
+            else
+                echo "✅ Installed! Run './mapminer' to start."
+            fi
+        else
+            echo "✅ Installed! Run 'mapminer' to start."
+        fi
         ;;
     start|run|"")
         # Auto-update first
@@ -28,7 +39,7 @@ case "${1:-start}" in
         
         echo "🚀 Starting server on http://localhost:8000"
         cd turbo
-        python3 -m uvicorn server:app --reload --port 8000
+        python3 -m uvicorn turbo.server:app --reload --port 8000
         ;;
     update)
         if [ -d ".git" ]; then
