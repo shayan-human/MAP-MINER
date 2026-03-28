@@ -45,15 +45,6 @@ python3 run.py
 
 ---
 
-## Alternative: Shell Script (Linux/Mac only)
-
-```bash
-chmod +x mapminer
-./mapminer
-```
-
----
-
 ## License
 
 MIT - © 2026 Shayan Alam
