@@ -1024,3 +1024,32 @@ if (enricherVerifyProxies) {
     });
 }
 
+// === PWA Installation Handler ===
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent the mini-infobar from appearing on mobile
+    e.preventDefault();
+    // Stash the event so it can be triggered later.
+    deferredPrompt = e;
+    console.log('PWA: beforeinstallprompt event fired');
+    
+    // Optionally, show a custom install button or notify the user
+    // For now, we'll just log it. If the user wants a button, we can add one.
+});
+
+window.addEventListener('appinstalled', (e) => {
+    console.log('PWA: App installed successfully');
+    deferredPrompt = null;
+});
+
+// Function to trigger installation manually (can be called from a button)
+window.installPWA = async () => {
+    if (!deferredPrompt) {
+        console.log('PWA: No installation prompt available');
+        return;
+    }
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`PWA: User response to install prompt: ${outcome}`);
+    deferredPrompt = null;
+};

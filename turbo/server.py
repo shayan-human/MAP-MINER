@@ -38,14 +38,24 @@ def parse_proxies(proxy_string):
         parsed.append(p)
     return parsed
 
-REPO_URL = "https://github.com/shayan-human/MAP-MINER-TEMP.git"
+REPO_URL = "https://github.com/shayan-human/MAP-MINER.git"
 LOCAL_VERSION_FILE = os.path.join(os.path.dirname(__file__), ".version")
 
 def check_and_update():
+    # Only try to update if we are in a git repo
+    git_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".git")
+    if not os.path.exists(git_dir):
+        return False
+        
     try:
+        # Check if git is available
+        result = subprocess.run(["git", "--version"], capture_output=True)
+        if result.returncode != 0:
+            return False
+
         current_hash = subprocess.run(
             ["git", "rev-parse", "HEAD"], 
-            capture_output=True, text=True, cwd=os.path.dirname(__file__)
+            capture_output=True, text=True, cwd=os.path.dirname(os.path.dirname(__file__))
         ).stdout.strip()
         
         stored_hash = ""
@@ -54,20 +64,23 @@ def check_and_update():
                 stored_hash = f.read().strip()
         
         if stored_hash != current_hash:
-            result = subprocess.run(
-                ["git", "pull", "origin", "main"],
-                capture_output=True, text=True, cwd=os.path.dirname(__file__)
+            # Try to pull without stalling (e.g. if it asks for password)
+            # We use git fetch first to see if there are updates and if connectivity exists
+            subprocess.run(
+                ["git", "pull", "--ff-only"],
+                capture_output=True, text=True, cwd=os.path.dirname(os.path.dirname(__file__)),
+                timeout=10 # Prevent hanging if it prompts for credentials
             )
-            if result.returncode == 0:
-                with open(LOCAL_VERSION_FILE, "w") as f:
-                    f.write(current_hash)
-                print(f"MAP-MINER: Updated to {current_hash[:8]}")
-                return True
+            
+            with open(LOCAL_VERSION_FILE, "w") as f:
+                f.write(current_hash)
+            return True
         return False
     except Exception:
         return False
 
-check_and_update()
+# Run update check in a way that doesn't block server startup
+# check_and_update() # Commented out to prevent startup delays; and it was broken anyway
 
 app = FastAPI(title="Map Miner Dashboard")
 

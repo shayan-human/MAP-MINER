@@ -4,14 +4,15 @@
 
 ---
 
-## Install & Run (Linux/Mac)
+## Quick Start (All OS)
 
 ```bash
-# 1. Install (one time) - auto-clones repo
-curl -sL https://raw.githubusercontent.com/shayan-human/MAP-MINER/main/install.sh | bash
+# Clone & Run
+git clone https://github.com/shayan-human/MAP-MINER.git
+cd MAP-MINER
 
-# 2. Run
-cd ~/mapminer && ./mapminer
+# Run (auto-creates venv & installs deps)
+python run.py
 ```
 
 Then open **http://localhost:8000**
@@ -21,30 +22,34 @@ Then open **http://localhost:8000**
 ## Manual Install
 
 ```bash
-git clone https://github.com/shayan-human/MAP-MINER.git ~/mapminer
-cd ~/mapminer
-python3 -m venv venv
+git clone https://github.com/shayan-human/MAP-MINER.git
+cd MAP-MINER
+
+# Create venv
+python -m venv venv
+
+# Activate (Linux/Mac)
 source venv/bin/activate
+
+# Activate (Windows)
+venv\Scripts\activate
+
+# Install deps
 pip install -r turbo/requirements.txt
 pip install playwright
 python -m playwright install chromium
-./mapminer
+
+# Run
+python run.py
 ```
 
 ---
 
-## Windows
+## Alternative: Shell Script (Linux/Mac only)
 
-```powershell
-git clone https://github.com/shayan-human/MAP-MINER.git
-cd MAP-MINER
-python -m venv venv
-venv\Scripts\activate
-pip install -r turbo\requirements.txt
-pip install playwright
-python -m playwright install chromium
-cd turbo
-python -m uvicorn server:app --reload --port 8000
+```bash
+chmod +x mapminer
+./mapminer
 ```
 
 ---
