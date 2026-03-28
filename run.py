@@ -40,9 +40,8 @@ def install_deps():
 
 def run_server():
     print("\nStarting server at http://localhost:8000\n")
-    os.chdir(TURBO_DIR)
     python = get_venv_python()
-    os.execv(str(python), [str(python), "-m", "uvicorn", "server:app", "--reload", "--port", "8000"])
+    os.execv(str(python), [str(python), "-m", "uvicorn", "turbo.server:app", "--reload", "--port", "8000"])
 
 def main():
     if not VENV_DIR.exists():
