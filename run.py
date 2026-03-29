@@ -82,28 +82,43 @@ def run_server():
 
 def check_for_updates():
     """Attempt to pull the latest changes from Git before running."""
+    if "--no-update" in sys.argv:
+        return False
+        
     print("Checking for updates...", end="", flush=True)
     git_dir = SCRIPT_DIR / ".git"
     if not git_dir.exists():
         print(" (not a git repo)")
-        return
+        return False
         
     try:
-        result = subprocess.run(
+        # Get hash before pull
+        old_hash = subprocess.run(
+            ["git", "rev-parse", "HEAD"], 
+            capture_output=True, text=True, cwd=SCRIPT_DIR
+        ).stdout.strip()
+        
+        # Try to pull
+        subprocess.run(
             ["git", "pull", "--ff-only"], 
-            capture_output=True, text=True, cwd=SCRIPT_DIR, timeout=10
+            capture_output=True, text=True, cwd=SCRIPT_DIR, timeout=15
         )
-        if "Already up to date" in result.stdout:
+        
+        # Get hash after pull
+        new_hash = subprocess.run(
+            ["git", "rev-parse", "HEAD"], 
+            capture_output=True, text=True, cwd=SCRIPT_DIR
+        ).stdout.strip()
+
+        if old_hash != new_hash:
+            print("\nUpdates pulled successfully!")
+            return True
+        else:
             print(" (up to date)")
             return False
-        else:
-            print("\nUpdates pulled successfully!")
-            print(result.stdout.strip())
-            return True
-    except subprocess.TimeoutExpired:
-        print("\nWarning: Update check timed out. Proceeding with current version.")
+            
     except Exception as e:
-        print(f"\nWarning: Could not check for updates ({e}). Proceeding with current version.")
+        print(f"\nWarning: Could not check for updates ({e}). Proceeding...")
     return False
 
 def main():
@@ -112,7 +127,9 @@ def main():
     
     if check_for_updates():
         print("Restarting script to apply updates...")
-        os.execv(sys.executable, [sys.executable] + sys.argv)
+        # Remove --setup from args if present to avoid redundant setup on restart
+        new_args = [a for a in sys.argv if a != "--setup"]
+        os.execv(sys.executable, [sys.executable] + new_args)
     
     if not VENV_DIR.exists():
         create_venv()
