@@ -21,7 +21,8 @@ def create_venv():
 def get_venv_python():
     """Get path to venv Python executable with cross-platform support."""
     if sys.platform == "win32":
-        python_path = VENV_DIR / "Scripts" / "python.exe"
+        # Use py launcher on Windows (handles multiple Python versions better)
+        return "py"
     else:
         python_path = VENV_DIR / "bin" / "python"
 
@@ -83,8 +84,11 @@ def install_system_deps():
 def run_server():
     print("\nStarting server at http://localhost:8000\n")
 
-    # Use sys.executable for better cross-platform compatibility
-    python = sys.executable
+    # Use py launcher on Windows, sys.executable on other platforms
+    if sys.platform == "win32":
+        python = "py"
+    else:
+        python = sys.executable
 
     # Ensure current directory is in PYTHONPATH for 'turbo' module discovery
     env = os.environ.copy()
