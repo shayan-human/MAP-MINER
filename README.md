@@ -27,13 +27,26 @@ Best for **no setup required** - works on Windows, Mac, and Linux.
 git clone https://github.com/shayan-human/MAP-MINER.git
 cd MAP-MINER
 
-# Build and Run
+# First time build
 docker-compose up --build
 ```
 
 Then open **http://localhost:8000**
 
 > ⚠️ **Requires**: [Docker Desktop](https://www.docker.com/products/docker-desktop) installed
+
+---
+
+## ⚡ Quick Start
+
+**Every time you want to run Map Miner:**
+```bash
+docker-compose up
+```
+
+This 1 command will:
+- ✅ Auto-update with latest code from GitHub
+- ✅ Start the server at http://localhost:8000
 
 ---
 
