@@ -24,7 +24,7 @@
 
 ## 🛠️ Installation & Setup
 
-### 1. Professional Installation
+### 1. Professional Installation (Linux/Mac)
 This sets up the **global command**, creates the virtual environment, and installs all system drivers automatically.
 
 ```bash
@@ -33,6 +33,13 @@ cd MAP-MINER && bash install.sh
 ```
 > [!NOTE]
 > This step requires `sudo` privileges to create the global shortcut (`mapminer`) and install browser dependencies.
+
+### 2. Quick Start (Windows)
+```bash
+git clone https://github.com/shayan-human/MAP-MINER.git
+cd MAP-MINER
+python run.py
+```
 
 ---
 
