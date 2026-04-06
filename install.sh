@@ -27,13 +27,11 @@ chmod +x "$HOME/mapminer/mapminer"
 chmod +x "$HOME/mapminer/run_map_miner.sh"
 
 # Create symlink in /usr/local/bin (requires sudo)
-if [ ! -L "/usr/local/bin/mapminer" ]; then
-    echo "This step requires sudo to create a global shortcut in /usr/local/bin."
-    sudo ln -sf "$HOME/mapminer/mapminer" /usr/local/bin/mapminer
-    echo "✓ Global command 'mapminer' installed to /usr/local/bin"
-else
-    echo "✓ Global command 'mapminer' already exists."
-fi
+# Always remove old symlink first to avoid broken symlinks
+echo "Setting up global 'mapminer' command..."
+sudo rm -f /usr/local/bin/mapminer
+sudo ln -sf "$HOME/mapminer/mapminer" /usr/local/bin/mapminer
+echo "✓ Global command 'mapminer' installed to /usr/local/bin"
 
 
 echo ""
