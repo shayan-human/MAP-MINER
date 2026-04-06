@@ -24,7 +24,7 @@
 
 ## 🛠️ Installation & Setup
 
-### 1. Professional Installation (Linux/Mac)
+### Linux/Mac (Professional Installation)
 This sets up the **global command**, creates the virtual environment, and installs all system drivers automatically.
 
 ```bash
@@ -34,31 +34,38 @@ cd MAP-MINER && bash install.sh
 > [!NOTE]
 > This step requires `sudo` privileges to create the global shortcut (`mapminer`) and install browser dependencies.
 
-### 2. Quick Start (Windows)
+After installation, run from **ANY** folder:
+```bash
+mapminer
+```
+
+---
+
+### Windows (Quick Start)
 ```bash
 git clone https://github.com/shayan-human/MAP-MINER.git
 cd MAP-MINER
 python run.py
 ```
 
----
-
-## 🏃 Usage
-
-Launch the dashboard from **ANY** terminal window and **ANY** folder by just typing:
-
-```bash
-mapminer
-```
+Then open http://localhost:8000
 
 ### 💡 Tips & Flags
-- **Force Re-Setup**: If you ever need to refresh your dependencies:
+- **Force Re-Setup** (Linux/Mac):
   ```bash
   mapminer --setup
   ```
-- **Skip Updates**: If you're on a slow connection and want to skip the update check:
+- **Force Re-Setup** (Windows):
+  ```bash
+  python run.py --setup
+  ```
+- **Skip Updates** (Linux/Mac):
   ```bash
   mapminer --no-update
+  ```
+- **Skip Updates** (Windows):
+  ```bash
+  python run.py --no-update
   ```
 
 ---
