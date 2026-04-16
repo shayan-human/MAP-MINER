@@ -21,17 +21,14 @@ def create_venv():
 def get_venv_python():
     """Get path to venv Python executable with cross-platform support."""
     if sys.platform == "win32":
-        # Use py launcher on Windows (handles multiple Python versions better)
-        return "py"
+        python_path = VENV_DIR / "Scripts" / "python.exe"
     else:
         python_path = VENV_DIR / "bin" / "python"
 
-    # Verify the venv Python exists
     if python_path.exists():
         return str(python_path)
 
-    # Fallback to system Python if venv Python not found
-    print(f"Warning: venv Python not found at {python_path}, using system Python")
+    # Fallback if venv not found
     return sys.executable
 
 
@@ -48,10 +45,13 @@ def install_deps(force=False):
     print("Installing/Updating dependencies...")
     python = get_venv_python()
     try:
+        # Upgrade pip first to avoid legacy package issues
+        subprocess.run([python, "-m", "pip", "install", "--upgrade", "pip"], check=True)
+        
         subprocess.run(
-            [str(python), "-m", "pip", "install", "-r", str(req_file)], check=True
+            [python, "-m", "pip", "install", "-r", str(req_file)], check=True
         )
-        subprocess.run([str(python), "-m", "pip", "install", "playwright"], check=True)
+        subprocess.run([python, "-m", "pip", "install", "playwright"], check=True)
         subprocess.run(
             [str(python), "-m", "playwright", "install", "chromium"], check=True
         )
@@ -84,11 +84,8 @@ def install_system_deps():
 def run_server():
     print("\nStarting server at http://localhost:8000\n")
 
-    # Use py launcher on Windows, sys.executable on other platforms
-    if sys.platform == "win32":
-        python = "py"
-    else:
-        python = sys.executable
+    # Always use the virtual environment's python for running the server
+    python = get_venv_python()
 
     # Ensure current directory is in PYTHONPATH for 'turbo' module discovery
     env = os.environ.copy()

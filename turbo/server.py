@@ -90,8 +90,8 @@ def check_and_update():
 app = FastAPI(title="Map Miner Dashboard")
 
 # Setup directories
-STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
-OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "outputs")
+STATIC_DIR = os.environ.get("MAPMINER_STATIC_DIR", os.path.join(os.path.dirname(__file__), "static"))
+OUTPUT_DIR = os.environ.get("MAPMINER_OUTPUT_DIR", os.path.join(os.path.dirname(__file__), "outputs"))
 HISTORY_FILE = os.path.join(OUTPUT_DIR, "history.json")
 os.makedirs(STATIC_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)

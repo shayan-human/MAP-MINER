@@ -10,6 +10,8 @@ services:
       - ./gmapsdata:/app/gmapsdata
     environment:
       - PYTHONUNBUFFERED=1
+      - MAPMINER_OUTPUT_DIR=/app/outputs
+      - PYTHONPATH=/app
     restart: unless-stopped
     command: >
-      sh -c "git fetch origin main && git stash && git stash pop || true && git pull origin main || echo 'Update skipped, starting server...' && exec python -m uvicorn turbo.server:app --host 0.0.0.0 --port 8000"
+      sh -c "git pull || echo 'Update skipped, starting server...' && exec python -m uvicorn turbo.server:app --host 0.0.0.0 --port 8000"

@@ -1,105 +1,74 @@
-# 🗺️ Map Miner — Ultimate Lead Extraction Dashboard
+# 🗺️ Map Miner - Lead Extraction from Google Maps
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Docker Ready](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/products/docker-desktop)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Docker](https://img.shields.io/badge/docker-%E2%9C%94-blue.svg)](https://www.docker.com/)
 
-**Map Miner** is a powerful, high-performance lead generation tool designed to extract business data from Google Maps at scale. Featuring a sleek, glassmorphic dashboard and advanced extraction logic, it's the premium solution for B2B lead mining.
-
----
-
-## 🚀 Key Features
-
-- **⚡ High-Accuracy Engine**: Stable searching logic for maximum regional accuracy
-- **🛡️ Proxy Rotation**: Integrated support for HTTP/Socks proxies with "Strict Mode" protection
-- **⚡ High-Speed Extraction**: Multithreaded scraping using Playwright
-- **📱 PWA Supported**: Install the dashboard as a standalone app
-- **🎨 Premium UI**: Modern dark mode interface with glassmorphic design
-- **🐳 Docker**: Runs anywhere with zero setup
+**Map Miner** is a high-accuracy business lead generation tool. It automated the process of extracting data from Google Maps and enriches those leads with contact emails and social links harvested directly from business websites.
 
 ---
 
-## 🛠️ Installation (Docker)
+## 🚀 Quick Start
 
-Best for **no setup required** - works on Windows, Mac, and Linux.
-
+### Option 1: Docker (Recommended)
+The easiest way to run Map Miner with zero configuration.
 ```bash
-# Clone
 git clone https://github.com/shayan-human/MAP-MINER.git
 cd MAP-MINER
-
-# First time build
 docker-compose up --build
 ```
+Access the dashboard at: **http://localhost:8000**
 
-Then open **http://localhost:8000**
-
-> ⚠️ **Requires**: [Docker Desktop](https://www.docker.com/products/docker-desktop) installed
-
----
-
-## ⚡ Quick Start
-
-**Every time you want to run Map Miner:**
+### Option 2: Local Setup (One Command)
+Use our automation script to handle virtual environment and Playwright setup.
 ```bash
-docker-compose up
+python3 run.py --setup
 ```
-
-This 1 command will:
-- ✅ Auto-update with latest code from GitHub
-- ✅ Start the server at http://localhost:8000
+*Note: This will create a `venv`, install dependencies, and download the Chromium browser automatically.*
 
 ---
 
-## 💡 Tips & Flags
+## ✨ Features
 
-- **Rebuild after fixes** (if you get errors):
-  ```bash
-  docker-compose build --no-cache
-  docker-compose up
-  ```
-- **Stop Container**:
-  ```bash
-  docker-compose down
-  ```
-- **View Logs**:
-  ```bash
-  docker-compose logs -f
-  ```
+- **Nuclear Scraper V2.1** - High-robustness Google Maps harvesting with smart scrolling and stealth integration.
+- **Smart Enrichment** - Crawls business websites to find contact emails, including detection of obfuscated patterns (e.g., `info [at] domain [dot] com`).
+- **Master Lead DB** - Integrated SQLite database automatically deduplicates leads across different searches.
+- **Proxy Rotation** - Supports HTTP/Socks proxies with built-in rotation and a "Strict Mode" for IP protection.
+- **Glassmorphic UI** - Modern web dashboard for managing jobs, monitoring progress, and downloading datasets.
+- **CSV Refinement** - Upload external CSV files to enrich or filter them against your local database.
 
 ---
 
-## 🩹 Troubleshooting
+## ⚙️ Configuration
 
-### Browser/Chromium Errors
-If you get errors like `libXfixes.so.3` or `Browser has been closed`:
-```bash
-docker-compose build --no-cache
-docker-compose up
-```
+| Environment Variable | Description | Default |
+|----------------------|-------------|---------|
+| `MAPMINER_OUTPUT_DIR` | Path to store CSVs and Database | `turbo/outputs/` |
+| `MAPMINER_STATIC_DIR` | Path to frontend assets | `turbo/static/` |
+| `PYTHONPATH` | Python module path | `.` |
 
-### Docker not working
-- Make sure Docker Desktop is running
-- On Windows, enable WSL2 in Docker Desktop settings
+### Proxy Format
+Provide a comma-separated list or a file link: `http://user:pass@host:port,http://user2:pass2@host2:port2`
 
-### Port 8000 in use
-Change port in `docker-compose.yml`:
-```yaml
-ports:
-  - "8001:8000"
-```
+---
 
-### Container keeps restarting
-Check logs:
-```bash
-docker-compose logs
+## 🛠 Project Structure
+
+```text
+.
+├── run.py              # Main automation & setup script
+├── Dockerfile          # Production Docker image
+├── docker-compose.yml  # Multi-container orchestration
+├── turbo/
+│   ├── server.py       # FastAPI Web Server
+│   ├── search.py       # Nuclear Maps Scraper
+│   ├── enrich.py       # Smart Email Extraction
+│   ├── db.py           # SQLite Deduplication Engine
+│   └── static/         # Glassmorphic UI Assets
+└── outputs/            # Persistent Data (Leads, CSVs)
 ```
 
 ---
 
-## 📄 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
----
-
-**Built with ❤️ by [Shayan Alam](https://github.com/shayan-human)**
+## 🛡 License
+MIT - Created by [Shayan Alam](https://github.com/shayan-human)
