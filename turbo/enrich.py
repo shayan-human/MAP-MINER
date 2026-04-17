@@ -241,7 +241,7 @@ async def enrich_business(business_data, proxies=None, limit=0, strict_mode=Fals
         verify=False,
         follow_redirects=True,
         proxy=proxy,
-        timeout=18.0
+        timeout=12.0 # Reduced from 18.0
     ) as client:
         # Detect IP (proxy confirmation)
         try:
@@ -277,11 +277,17 @@ async def enrich_business(business_data, proxies=None, limit=0, strict_mode=Fals
             # Check up to 5 contact-related links found in navigation
             for link in pages_to_check[:5]:
                 if is_limit_reached(): break
-                await asyncio.sleep(random.uniform(0.5, 1.5))
+                await asyncio.sleep(random.uniform(0.1, 0.5)) # Reduced delay
                 sub_html = await get_page_content(client, link)
                 if sub_html:
                     sub_emails = await _extract_all_emails_from_html(sub_html)
                     emails.update(sub_emails)
+        else:
+            # Smart Skip: If homepage fails, don't try subpages on the same dead domain
+            print(f"  [Enrich] Skipping dead domain: {website}")
+            business_data['emails'] = []
+            business_data['socials'] = ""
+            return business_data
 
         # === 4. Try common fallback paths if we still have few/no contact links ===
         if not is_limit_reached():

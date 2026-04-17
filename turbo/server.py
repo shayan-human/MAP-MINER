@@ -296,7 +296,7 @@ async def run_scrape_task(job_id, niche, location, max_results, depth, concurren
                 async with lock:
                     progress_count += 1
                     jobs[job_id]["progress"] = progress_count
-                    jobs[job_id]["status"] = f"Enriching... ({progress_count}/{total_found})"
+                    jobs[job_id]["status"] = f"Enriching... ({progress_count}/{total_found}) - {biz.get('name', 'Business')}"
 
         tasks = [enriched_worker(biz) for biz in businesses]
         print(f"  [Engine] Starting enrichment for {total_found} leads")
