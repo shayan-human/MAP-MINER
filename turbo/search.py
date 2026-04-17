@@ -171,8 +171,18 @@ async def scrape_gmaps(query, depth=2, max_results=50, proxy_string=None, is_sub
         proxy_config = pm.get_playwright_proxy() if pm else None
         
         try:
-            print("  [V2] Launching browser...")
-            browser = await p.chromium.launch(headless=True, proxy=proxy_config)
+            print("  [V2] Launching browser with Docker-hardened flags...")
+            browser = await p.chromium.launch(
+                headless=True, 
+                proxy=proxy_config,
+                args=[
+                    "--no-sandbox", 
+                    "--disable-setuid-sandbox", 
+                    "--disable-dev-shm-usage",
+                    "--disable-accelerated-2d-canvas",
+                    "--disable-gpu"
+                ]
+            )
             print("  [V2] Browser initialized.")
         except Exception as e:
             if strict_mode and proxy_config:
@@ -199,11 +209,10 @@ async def scrape_gmaps(query, depth=2, max_results=50, proxy_string=None, is_sub
         # [V2.1] Nuclear Interactive Search
         # We visit the base maps URL first to set the session/locale, 
         # then type the query to avoid regional redirects.
-        base_url = "https://www.google.com/maps?hl=en"
-        print(f"  [V2.1] Navigating to: {base_url}")
-        
         try:
+            print(f"  [V2.1] Navigating to: {base_url}")
             await page.goto(base_url, wait_until="domcontentloaded", timeout=60000)
+            print("  [V2.1] Page loaded. Handling consent...")
             await handle_consent(page)
             
             # 2. Type the query
@@ -223,14 +232,6 @@ async def scrape_gmaps(query, depth=2, max_results=50, proxy_string=None, is_sub
             await search_box.fill(query)
             await asyncio.sleep(0.5)
             await page.keyboard.press("Enter")
-            
-            # Fallback: Click the search button if Enter didn't work
-            try:
-                search_btn = await page.wait_for_selector('button#searchbox-searchbutton', timeout=2000)
-                if search_btn:
-                    await search_btn.click()
-            except: pass
-            
             print("  [V2.1] Search submitted. Waiting for results...")
             await asyncio.sleep(5.0)
             

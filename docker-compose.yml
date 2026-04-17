@@ -11,5 +11,6 @@ services:
       - MAPMINER_OUTPUT_DIR=/app/outputs
       - PYTHONPATH=/app
     restart: unless-stopped
+    shm_size: '2gb'
     command: >
       sh -c "[ -d .git ] && git pull 2>/dev/null || echo 'Starting server...' && exec python -m uvicorn turbo.server:app --host 0.0.0.0 --port 8000"
