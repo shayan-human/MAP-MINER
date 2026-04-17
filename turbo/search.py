@@ -70,8 +70,9 @@ async def extract_details(context, lead, idx, total, results_list, lock):
     await page.route("**/*.{png,jpg,jpeg,svg,webp,gif,css,woff,woff2,ttf,pdf}", lambda route: route.abort())
     
     try:
+        print(f"  [V2.2] Extracting details for: {lead['name']}")
         await asyncio.sleep(random.uniform(0.1, 0.5))
-        await page.goto(lead['link'], wait_until="domcontentloaded", timeout=45000)
+        await page.goto(lead['link'], wait_until="domcontentloaded", timeout=20000)
         await asyncio.sleep(0.5)
         
         details = await page.evaluate('''() => {
@@ -99,14 +100,14 @@ async def extract_details(context, lead, idx, total, results_list, lock):
         if details['name']:
             async with lock:
                 results_list.append(details)
-                print(f"  [{len(results_list)}/{total}] Extracted: {details['name']}")
+                print(f"  [V2.2] [{len(results_list)}/{total}] Finished: {details['name']}")
     except Exception as e:
         async with lock:
             results_list.append({
                 'name': lead['name'],
                 'website': '', 'phone': '', 'address': '', 'rating': ''
             })
-            print(f"  [!] Extraction failed for: {lead['name']}")
+            print(f"  [V2.2] [!] Failed or Timed out: {lead['name']}")
     finally:
         await page.close()
 
@@ -209,6 +210,7 @@ async def scrape_gmaps(query, depth=2, max_results=50, proxy_string=None, is_sub
         # [V2.1] Nuclear Interactive Search
         # We visit the base maps URL first to set the session/locale, 
         # then type the query to avoid regional redirects.
+        base_url = "https://www.google.com/maps?hl=en"
         try:
             print(f"  [V2.1] Navigating to: {base_url}")
             await page.goto(base_url, wait_until="domcontentloaded", timeout=60000)
