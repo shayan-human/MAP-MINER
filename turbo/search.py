@@ -42,6 +42,9 @@ async def handle_consent(page):
         '.qc-cmp2-summary-buttons button:nth-child(2)',
         'div[aria-modal="true"] button:has-text("Accept all")',
         '#introAgreeButton',
+        'button[aria-label*="Reject all"]', # Sometimes reject is better than blocking
+        'button:has-text("Reject all")',
+        'button:has-text("Skip")',
     ]
     # Check for CAPTCHA first
     is_captcha = await page.evaluate('() => document.body.innerText.includes("detecting unusual traffic") || document.querySelector("#captcha-form")')
@@ -233,13 +236,33 @@ async def scrape_gmaps(query, depth=2, max_results=50, proxy_string=None, is_sub
             await search_box.click()
             await search_box.fill(query)
             await asyncio.sleep(0.5)
-            await page.keyboard.press("Enter")
+            
+            # [V2.1] Hybrid Search Trigger
+            search_btn_selectors = ['button#searchbox-searchbutton', 'button[aria-label*="Search"]', '.searchbox-searchbutton']
+            clicked = False
+            for btn_sel in search_btn_selectors:
+                try:
+                    btn = await page.wait_for_selector(btn_sel, timeout=2000)
+                    if btn:
+                        print(f"  [V2.1] Clicking search button: {btn_sel}")
+                        await btn.click()
+                        clicked = True
+                        break
+                except: pass
+            
+            if not clicked:
+                print("  [V2.1] Search button not found, pressing Enter...")
+                await page.keyboard.press("Enter")
+            
             print("  [V2.1] Search submitted. Waiting for results...")
             await asyncio.sleep(5.0)
             
-            # Verify if we actually moved from the home page
-            if page.url == base_url:
-                print("  [V2.1] [WARNING] Still on base URL. Retrying with direct URL...")
+            # Verify if we actually moved from the home page OR results appeared
+            # Check for maps results container
+            has_results = await page.evaluate('() => !!document.querySelector("div[role=\'feed\'], div[aria-label*=\'results\']")')
+            
+            if page.url == base_url and not has_results:
+                print("  [V2.1] [WARNING] Still on base URL and no results found. Retrying with direct URL...")
                 raise Exception("Search failed to trigger")
                 
         except Exception as e:
