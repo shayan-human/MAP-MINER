@@ -97,7 +97,7 @@ docker-compose logs
 ### ❌ Conflict: Container name already in use
 If you see an error saying "The container name... is already in use", it means an old version is still running. Run this command to clear it:
 ```bash
-docker rm -f mapminer
+docker rm -f mapminer 2>/dev/null
 ```
 Then try `docker-compose up` again.
 
