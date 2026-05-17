@@ -14,7 +14,7 @@ from fastapi import FastAPI, Form, Request, BackgroundTasks, UploadFile, File
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from turbo.search import scrape_gmaps
-from turbo.enrich import enrich_business
+from turbo.enrich import enrich_business, create_shared_browser
 from turbo.db import LeadDB
 import pandas as pd
 
@@ -275,13 +275,16 @@ async def run_scrape_task(job_id, niche, location, max_results, depth, concurren
         progress_count = 0
         lock = asyncio.Lock()
         
+        # Use a shared browser instance for all enrichments to avoid OOM
+        pw, shared_browser = await create_shared_browser()
+        
         async def enriched_worker(biz):
             nonlocal progress_count
             async with semaphore:
                 # Always try to enrich if website is present, even duplicates
                 # This ensures we get the latest emails for every search.
                 if biz.get('website'):
-                    res = await enrich_business(biz, proxies=proxies_list, limit=email_limit, strict_mode=strict_mode)
+                    res = await enrich_business(biz, proxies=proxies_list, limit=email_limit, strict_mode=strict_mode, shared_browser=shared_browser)
                 else:
                     res = biz
                     if 'emails' not in res: res['emails'] = []
@@ -298,9 +301,13 @@ async def run_scrape_task(job_id, niche, location, max_results, depth, concurren
                     jobs[job_id]["progress"] = progress_count
                     jobs[job_id]["status"] = f"Enriching... ({progress_count}/{total_found}) - {biz.get('name', 'Business')}"
 
-        tasks = [enriched_worker(biz) for biz in businesses]
-        print(f"  [Engine] Starting enrichment for {total_found} leads")
-        await asyncio.gather(*tasks)
+        try:
+            tasks = [enriched_worker(biz) for biz in businesses]
+            print(f"  [Engine] Starting enrichment for {total_found} leads (shared browser)")
+            await asyncio.gather(*tasks)
+        finally:
+            await shared_browser.close()
+            await pw.stop()
         
         # Save to DB (now handles updates/merges)
         db.add_leads(enriched_results)
@@ -556,13 +563,16 @@ async def run_enrich_csv_task(job_id, rows, concurrency, proxy_string, email_lim
         progress_count = 0
         lock = asyncio.Lock()
 
+        # Use a shared browser instance for all enrichments to avoid OOM
+        pw, shared_browser = await create_shared_browser()
+
         async def worker(row):
             nonlocal progress_count
             async with semaphore:
                 website = row.get('website')
                 # Skip if not a string (handles NaN) or empty
                 if isinstance(website, str) and website.strip():
-                    res = await enrich_business(row, proxies=proxies_list, limit=email_limit, strict_mode=strict_mode)
+                    res = await enrich_business(row, proxies=proxies_list, limit=email_limit, strict_mode=strict_mode, shared_browser=shared_browser)
                 else:
                     res = row
                     if 'emails' not in res:
@@ -577,9 +587,13 @@ async def run_enrich_csv_task(job_id, rows, concurrency, proxy_string, email_lim
                     jobs[job_id]["progress"] = progress_count
                     jobs[job_id]["status"] = f"Enriching... ({progress_count}/{total})"
 
-        tasks = [worker(row) for row in rows]
-        print(f"  [Enricher] Starting email enrichment for {total} leads")
-        await asyncio.gather(*tasks)
+        try:
+            tasks = [worker(row) for row in rows]
+            print(f"  [Enricher] Starting email enrichment for {total} leads (shared browser)")
+            await asyncio.gather(*tasks)
+        finally:
+            await shared_browser.close()
+            await pw.stop()
 
         # Build output DataFrame
         df = pd.DataFrame(enriched_rows)

@@ -78,6 +78,8 @@ async def extract_details(context, lead, idx, total, results_list, lock):
         await page.goto(lead['link'], wait_until="domcontentloaded", timeout=20000)
         await asyncio.sleep(0.5)
         
+        email_pattern = r'[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}'
+        
         details = await page.evaluate('''() => {
             const clean = (text) => text ? text.replace(/[^\x20-\x7E]/g, '').trim() : "";
             const name = document.querySelector('h1')?.innerText || "";
@@ -91,16 +93,40 @@ async def extract_details(context, lead, idx, total, results_list, lock):
             const address_el = document.querySelector('button[data-item-id="address"]');
             const rating_el = document.querySelector('span[role="img"]');
             
+            // Extract email from visible text (Google sometimes shows email on listing)
+            let email = "";
+            const emailSelectors = [
+                'a[href^="mailto:"]',
+                'div[data-item-id*="email"]',
+                'button[data-item-id*="email"]',
+                'a[data-item-id*="email"]',
+                'span[data-item-id*="email"]',
+            ];
+            for (const sel of emailSelectors) {
+                const el = document.querySelector(sel);
+                if (el) {
+                    const href = el.href || el.getAttribute('data-item-id') || el.innerText || "";
+                    const match = href.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/);
+                    if (match) {
+                        email = match[0].toLowerCase();
+                        break;
+                    }
+                }
+            }
+            
             return {
                 name: name,
                 website: website_el ? website_el.href : "",
                 phone: clean(phone_el ? phone_el.innerText : ""),
                 address: clean(address_el ? address_el.innerText : ""),
-                rating: rating_el ? rating_el.getAttribute('aria-label') || "" : ""
+                rating: rating_el ? rating_el.getAttribute('aria-label') || "" : "",
+                email: email
             };
         }''')
         
         if details['name']:
+            # Default email from Maps listing to empty list for consistency
+            details['emails'] = [details['email']] if details.get('email') else []
             async with lock:
                 results_list.append(details)
                 print(f"  [V2.2] [{len(results_list)}/{total}] Finished: {details['name']}")
@@ -108,7 +134,7 @@ async def extract_details(context, lead, idx, total, results_list, lock):
         async with lock:
             results_list.append({
                 'name': lead['name'],
-                'website': '', 'phone': '', 'address': '', 'rating': ''
+                'website': '', 'phone': '', 'address': '', 'rating': '', 'email': '', 'emails': []
             })
             print(f"  [V2.2] [!] Failed or Timed out: {lead['name']}")
     finally:
@@ -362,8 +388,9 @@ async def scrape_gmaps(query, depth=2, max_results=50, proxy_string=None, is_sub
 
         if not card_data:
             print("  [!] Stage 2 harvest failed. Taking emergency screenshot...")
-            os.makedirs("outputs", exist_ok=True)
-            spath = f"outputs/fail_{datetime.datetime.now().strftime('%H%M%S')}.png"
+            output_dir = os.environ.get("MAPMINER_OUTPUT_DIR", os.path.join(os.path.dirname(__file__), "outputs"))
+            os.makedirs(output_dir, exist_ok=True)
+            spath = os.path.join(output_dir, f"fail_{datetime.datetime.now().strftime('%H%M%S')}.png")
             await page.screenshot(path=spath)
             print(f"  [V2] Screenshot saved to: {spath}")
             await browser.close()

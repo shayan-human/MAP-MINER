@@ -11,7 +11,8 @@ outputs/
 gmapsdata/
 *.png
 *.jpg
-*.sh
+install.sh
+run_map_miner.sh
 CODEBASE.md
 AGENT.md
 README.md
