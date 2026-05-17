@@ -45,7 +45,6 @@ docker-compose up
 ```
 
 This 1 command will:
-- ✅ Auto-update with latest code from GitHub
 - ✅ Start the server at http://localhost:8000
 
 ---
